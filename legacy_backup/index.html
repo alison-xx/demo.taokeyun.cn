@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>灵策智算 - AI员工</title>
+  <link rel="stylesheet" href="styles.css?v=2026042205">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- AI员工选择模态框 -->
+  <div class="ai-employee-modal" id="aiEmployeeModal">
+    <div class="ai-employee-panel">
+      <div class="ai-employee-header">
+        <div class="ai-employee-title-wrap">
+          <h2 class="ai-employee-title">🤖 AI员工</h2>
+          <p class="ai-employee-subtitle">选择一个专业AI员工，立即开始对话</p>
+        </div>
+        <button class="ai-employee-close" onclick="closeAiEmployeeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="ai-employee-search">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="search-input" id="employeeSearchInput" placeholder="搜索员工名称或能力..." oninput="filterEmployees()">
+        </div>
+      </div>
+      <div class="ai-employee-filters" id="employeeFilters">
+        <!-- 分类标签将由JS生成 -->
+      </div>
+      <div class="ai-employee-grid" id="employeeGrid">
+        <!-- 员工卡片将由JS生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 个人设置面板 -->
+  <div class="api-settings-overlay hidden" id="apiSettingsOverlay">
+    <div class="api-settings-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="api-settings-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          个人设置
+        </h2>
+        <button class="settings-close-btn" onclick="closeSettingsPanel()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 用户信息 -->
+      <div class="settings-user-info">
+        <div class="settings-avatar" id="settingsAvatar">用</div>
+        <div class="settings-user-details">
+          <div class="settings-username" id="settingsUsername">用户</div>
+          <div class="settings-email" id="settingsEmail">user@example.com</div>
+        </div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- 基本设置 -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">基本设置</h3>
+        
+        <div class="settings-item">
+          <label class="settings-label">昵称</label>
+          <input type="text" class="settings-input" id="settingsNickname" placeholder="请输入昵称">
+        </div>
+        
+        <div class="settings-item">
+          <label class="settings-label">修改密码</label>
+          <button class="settings-btn-secondary" onclick="showChangePassword()">修改密码</button>
+        </div>
+        
+        <div class="settings-item">
+          <label class="settings-label">头像</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="settings-avatar" id="settingsAvatar" style="cursor: pointer;" onclick="openAvatarUpload()">用</div>
+            <span class="settings-avatar-hint">点击修改头像</span>
+          </div>
+        </div>
+        
+        <div class="settings-item">
+          <button class="settings-btn-primary" onclick="saveProfile()">保存设置</button>
+        </div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- 偏好设置 -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">偏好设置</h3>
+        
+        <div class="settings-item settings-toggle-row">
+          <span>深色模式</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingsDarkMode" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-item settings-toggle-row">
+          <span>消息通知</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settingsNotification" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <!-- 账户操作 -->
+      <div class="settings-actions">
+        <button class="settings-btn-danger" onclick="handleLogout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          退出登录
+        </button>
+      </div>
+      
+      <div class="api-settings-note">
+        💡 提示：您的个人信息仅保存在服务器端，我们重视您的隐私安全。
+      </div>
+    </div>
+  </div>
+
+  <!-- 绘画生成状态模态框 -->
+  <div class="generating-overlay" id="generatingOverlay">
+    <div class="generating-modal">
+      <div class="generating-spinner"></div>
+      <div class="generating-text">正在生成图片...</div>
+      <div class="generating-subtext">AI 正在发挥创意，请稍候</div>
+      <button class="generating-cancel-btn" onclick="cancelImageGeneration()">取消生成</button>
+    </div>
+  </div>
+
+  <!-- 图片预览模态框 -->
+  <div class="image-preview-overlay" id="imagePreviewOverlay" onclick="closeImagePreview(event)">
+    <div class="image-preview-container">
+      <button class="image-preview-close" onclick="closeImagePreview(event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <img id="previewImage" src="" alt="预览图片">
+    </div>
+  </div>
+
+  <!-- Toast提示 -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span id="toastMessage">提示信息</span>
+  </div>
+
+  <div class="app-container">
+    <!-- 移动端侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    
+    <!-- 背景装饰 -->
+    <div class="bg-decoration">
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+      <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L17.4 9H22L14.8 14.6L17.4 22L12 17.4L6.6 22L9.2 14.6L2 9H6.6L12 2Z" fill="url(#logo-gradient)"/>
+              <defs>
+                <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7B61FF"/>
+                  <stop offset="100%" stop-color="#00A1D6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">灵策智算</span>
+        </div>
+        
+        <!-- AI员工入口按钮 -->
+        <button class="ai-employee-btn" onclick="openAiEmployeeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          选择AI员工
+          <span class="pulse-dot"></span>
+        </button>
+        
+        <button class="new-chat-btn" onclick="createNewChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          新建对话
+        </button>
+      </div>
+
+      <!-- 当前AI员工信息 -->
+      <div class="current-employee-bar" id="currentEmployeeBar" onclick="openAiEmployeeModal()">
+        <div class="current-employee-info">
+          <div class="current-employee-avatar" id="currentEmployeeAvatar">灵</div>
+          <div class="current-employee-details">
+            <div class="current-employee-name" id="currentEmployeeName">B站内容策略师</div>
+            <div class="current-employee-dept" id="currentEmployeeDept">引流部</div>
+          </div>
+          <div class="current-employee-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="history-section">
+        <div class="history-label">历史记录</div>
+        <div class="history-list" id="historyList">
+          <!-- 历史记录将由JS动态生成 -->
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-profile" id="userProfileArea" onclick="handleUserClick()">
+          <div class="user-avatar">策</div>
+          <div class="user-info">
+            <div class="user-name">策略达人</div>
+            <div class="user-status">
+              <span class="status-dot"></span>
+              <span id="userStatusText">选择AI员工开始</span>
+            </div>
+          </div>
+          <div class="user-settings" onclick="event.stopPropagation(); openApiSettings()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+            </svg>
+          </div>
+          <div class="user-auth-btn" id="userAuthBtn" onclick="event.stopPropagation(); openAuthModal()" title="登录">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+          </div>
+          <div class="user-logout" id="userLogoutBtn" onclick="event.stopPropagation(); Api.logout()" title="退出登录" style="display:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧主区域 -->
+    <main class="main-content">
+      <!-- 顶部导航 -->
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <!-- 移动端菜单按钮 -->
+          <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <h1 class="header-title" id="headerTitle">选择AI员工开始对话</h1>
+          <div class="header-badge" id="headerBadge">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+            <span id="headerBadgeText">等待选择</span>
+          </div>
+        </div>
+        <div class="chat-header-right">
+          <div class="api-status-indicator disconnected" id="apiStatusIndicator" onclick="openApiSettings()">
+            <span class="api-status-dot"></span>
+            <span id="apiStatusText">未连接</span>
+          </div>
+          <button class="header-btn" title="导出对话" onclick="exportChat()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 消息区域 -->
+      <div class="chat-messages" id="chatMessages">
+        <!-- 欢迎界面 -->
+        <div class="welcome-container" id="welcomeContainer">
+          <div class="welcome-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h2 class="welcome-title">选择您的AI员工</h2>
+          <p class="welcome-subtitle">
+            灵策智算为您准备了专业的AI员工团队，<br>
+            涵盖引流、销售、营销、转化、客服五大部门...
+          </p>
+          <div class="welcome-features">
+            <div class="feature-card" onclick="openAiEmployeeModal()">
+              <div class="feature-card-icon pink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="feature-card-title">选择AI员工</div>
+              <div class="feature-card-desc">点击左侧栏或这里开始选择</div>
+            </div>
+            <div class="feature-card" onclick="selectCurrentEmployeeQuick()">
+              <div class="feature-card-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div class="feature-card-title">B站内容策略师</div>
+              <div class="feature-card-desc">专注B站内容策略分析</div>
+            </div>
+            <div class="feature-card" onclick="openAiEmployeeModal()">
+              <div class="feature-card-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+              </div>
+              <div class="feature-card-title">数据分析专家</div>
+              <div class="feature-card-desc">多平台数据深度分析</div>
+            </div>
+            <div class="feature-card" onclick="selectEmployee('ai-painter')">
+              <div class="feature-card-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                  <path d="M2 2l7.586 7.586"/>
+                  <circle cx="11" cy="11" r="2"/>
+                </svg>
+              </div>
+              <div class="feature-card-title">AI绘画师</div>
+              <div class="feature-card-desc">输入描述即可生成图片</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 协作模式区域 -->
+      <div class="collaboration-bar" id="collaborationBar">
+        <div class="collaboration-toggle">
+          <label class="toggle-switch">
+            <input type="checkbox" id="collaborationToggle" onchange="toggleCollaborationMode()">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">协作模式</span>
+        </div>
+        <div class="collaboration-options">
+          <label class="collaboration-radio">
+            <input type="radio" name="answerMode" value="separate" checked onchange="updateAnswerMode('separate')">
+            <span class="radio-custom"></span>
+            <span class="radio-label">分开回答</span>
+          </label>
+          <label class="collaboration-radio">
+            <input type="radio" name="answerMode" value="combined" onchange="updateAnswerMode('combined')">
+            <span class="radio-custom"></span>
+            <span class="radio-label">组合回答</span>
+          </label>
+        </div>
+        <div class="collaboration-employees" id="collaborationEmployees">
+          <div class="selected-employees-list" id="selectedEmployeesList"></div>
+          <button class="add-employee-btn" id="addEmployeeBtn" onclick="openAiEmployeeModal()" title="添加员工">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 输入区域 -->
+      <div class="chat-input-container" id="chatInputContainer">
+        <div class="input-wrapper">
+          <textarea 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="选择AI员工后，开始您的专属对话..."
+            rows="1"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <div class="input-actions">
+            <button class="input-btn" id="stopBtn" title="停止生成" style="display: none;" onclick="stopGeneration()">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2"/>
+              </svg>
+            </button>
+            <button class="polish-btn" id="polishBtn" onclick="polishMessage()" disabled>
+              <span class="polish-icon">✨</span>
+              <span class="polish-text">润色</span>
+            </button>
+            <button class="undo-btn" id="undoBtn" onclick="undoPolish()" disabled>
+              <span class="undo-icon">↩️</span>
+              <span class="undo-text">返回</span>
+            </button>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="quick-prompts" id="quickPrompts">
+          <div class="quick-prompts-header">
+            <span class="quick-prompts-title">猜你想问</span>
+            <button class="quick-prompts-refresh" onclick="refreshQuickPrompts()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              换一换
+            </button>
+          </div>
+          <div class="quick-prompts-list" id="quickPromptsList">
+            <div class="quick-prompt" onclick="usePrompt(this)">帮我分析近期热门内容</div>
+            <div class="quick-prompt" onclick="usePrompt(this)">生成推广方案</div>
+            <div class="quick-prompt" onclick="usePrompt(this)">优化转化策略</div>
+            <div class="quick-prompt" onclick="usePrompt(this)">制定增长计划</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=2026042210"></script>
+  <script src="js/main.js?v=2026042210"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+    "name": "lingce/ai",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    }
+}
