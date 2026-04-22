@@ -1,42 +1,96 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/auth';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
-const apiBaseURL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '/api' : '');
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
-const request = axios.create({
-  baseURL: apiBaseURL,
-  timeout: 60000,
+const api: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  timeout: 30000,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-request.interceptors.request.use((config) => {
-  const authStore = useAuthStore();
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`;
-  }
-  return config;
-});
+let isRefreshing = false;
+let refreshQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = [];
 
-request.interceptors.response.use(
-  (response) => {
-    const res = response.data;
-    if (res.code && res.code !== 200) {
-      if (res.code === 401) {
-        const authStore = useAuthStore();
-        authStore.logout();
-        window.dispatchEvent(new CustomEvent('auth-required'));
-      }
-      return Promise.reject(new Error(res.message || 'Error'));
+const processQueue = (token: string | null, err: unknown) => {
+  refreshQueue.forEach(promise => {
+    if (token) promise.resolve(token);
+    else promise.reject(err);
+  });
+  refreshQueue = [];
+};
+
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('access_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return res;
+    return config;
   },
-  (error) => {
-    if (error.response?.status === 401) {
-      const authStore = useAuthStore();
-      authStore.logout();
-      window.dispatchEvent(new CustomEvent('auth-required'));
+  error => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          refreshQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        }).catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        isRefreshing = false;
+        processQueue(null, new Error('No refresh token'));
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+
+      try {
+        const res = await axios.post(
+          `${BASE_URL}/api/auth/refresh`,
+          { refreshToken },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        if (res.data?.code === 200) {
+          const { accessToken, refreshToken: newRefresh } = res.data.data;
+          localStorage.setItem('access_token', accessToken);
+          localStorage.setItem('refresh_token', newRefresh);
+          localStorage.setItem('user', JSON.stringify(res.data.data.user));
+          processQueue(accessToken, null);
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return api(originalRequest);
+        } else {
+          throw new Error(res.data?.message || 'Refresh failed');
+        }
+      } catch (refreshError) {
+        processQueue(null, refreshError);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
+
     return Promise.reject(error);
   }
 );
 
-export default request;
+export default api;
