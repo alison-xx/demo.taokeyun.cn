@@ -14,6 +14,8 @@ import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import chatRoutes from './routes/chat.js'
 import paintingRoutes from './routes/painting.js'
+import onboardingRoutes from './routes/onboarding.js'
+import agentsRoutes from './routes/agents.js'
 import { globalLimiter, loginLimiter } from './middleware/rateLimit.js'
 
 // for esm mode
@@ -36,10 +38,10 @@ app.use(globalLimiter)
 app.use('/api/auth', loginLimiter, authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/painting', paintingRoutes)
+app.use('/api/onboarding', onboardingRoutes)
+app.use('/api/agents', agentsRoutes)
 // Compatibility routes for environments where a proxy strips the /api prefix.
 app.use('/auth', authRoutes)
-app.use('/chat', chatRoutes)
-app.use('/painting', paintingRoutes)
 
 /**
  * health
