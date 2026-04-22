@@ -19,8 +19,8 @@ dist-ssr
 .user.ini
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode/
+.trae/
 .idea
 .DS_Store
 *.suo
