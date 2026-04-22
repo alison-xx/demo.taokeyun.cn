@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import request from '../utils/request';
 
 defineProps<{ show: boolean }>();
 const emit = defineEmits(['close']);
@@ -29,11 +28,11 @@ const saveProfile = async () => {
 onMounted(async () => {
   if (authStore.accessToken) {
     try {
-      const res: any = await request.get('/auth/profile');
-      if (res.code === 200) {
-         nickname.value = res.data.username;
+      const profile = await authStore.fetchProfile();
+      if (profile) {
+        nickname.value = profile.username || '';
       }
-    } catch(e) {}
+    } catch {}
   }
 });
 </script>

@@ -38,7 +38,7 @@ const sendMessage = async () => {
   const content = currentInput.value.trim();
   if (!content || isGenerating.value) return;
 
-  if (!authStore.token) {
+  if (!authStore.accessToken) {
     showAuthModal.value = true;
     return;
   }
@@ -65,7 +65,7 @@ const sendMessage = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authStore.token}`
+        'Authorization': `Bearer ${authStore.accessToken}`
       },
       body: JSON.stringify({
         session_id: chatStore.currentSessionId,
@@ -119,7 +119,7 @@ const sendMessage = async () => {
 
 onMounted(() => {
   window.addEventListener('auth-required', handleAuthRequired);
-  if (authStore.token) {
+  if (authStore.accessToken) {
     chatStore.loadSessions();
   }
 });
