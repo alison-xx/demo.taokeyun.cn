@@ -16,6 +16,11 @@ import chatRoutes from './routes/chat.js'
 import paintingRoutes from './routes/painting.js'
 import onboardingRoutes from './routes/onboarding.js'
 import agentsRoutes from './routes/agents.js'
+import adminAuthRoutes from './routes/admin/auth.js'
+import adminUserRoutes from './routes/admin/users.js'
+import adminAgentRoutes from './routes/admin/agents.js'
+import adminStatsRoutes from './routes/admin/stats.js'
+import adminSystemRoutes from './routes/admin/system.js'
 import { globalLimiter, loginLimiter } from './middleware/rateLimit.js'
 
 // for esm mode
@@ -40,6 +45,11 @@ app.use('/api/chat', chatRoutes)
 app.use('/api/painting', paintingRoutes)
 app.use('/api/onboarding', onboardingRoutes)
 app.use('/api/agents', agentsRoutes)
+app.use('/api/admin/auth', adminAuthRoutes)
+app.use('/api/admin/users', adminUserRoutes)
+app.use('/api/admin/agents', adminAgentRoutes)
+app.use('/api/admin/stats', adminStatsRoutes)
+app.use('/api/admin/system', adminSystemRoutes)
 // Compatibility routes for environments where a proxy strips the /api prefix.
 app.use('/auth', authRoutes)
 

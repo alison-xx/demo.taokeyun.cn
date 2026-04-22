@@ -126,6 +126,27 @@ export const useAuthStore = defineStore('auth', () => {
     return res;
   };
 
+  const fetchOnboardingStatus = async () => {
+    try {
+      const res = await request.get<any>('/api/onboarding/status');
+      if ((res.data as any)?.code === 200) {
+        return (res.data as any).data;
+      }
+    } catch {}
+    return null;
+  };
+
+  const completeOnboarding = async () => {
+    const res = await request.post<any>('/api/onboarding/complete');
+    if ((res.data as any)?.code === 200) {
+      if (user.value) {
+        user.value = { ...user.value, onboarded: true };
+        localStorage.setItem('user', JSON.stringify(user.value));
+      }
+    }
+    return res;
+  };
+
   return {
     accessToken,
     refreshToken,
@@ -145,5 +166,7 @@ export const useAuthStore = defineStore('auth', () => {
     revokeSession,
     migrateGuest,
     updateProfile,
+    fetchOnboardingStatus,
+    completeOnboarding,
   };
 });

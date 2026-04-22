@@ -195,7 +195,7 @@ onBeforeUnmount(() => {
             登录 / 注册
           </button>
         </div>
-        <AgentMarket @start-chat="isSidebarOpen = false" />
+        <AgentMarket @start-chat="isSidebarOpen = false" data-guide="agent-list" />
       </template>
       <template v-else>
         <header class="chat-header">
@@ -270,7 +270,7 @@ onBeforeUnmount(() => {
             <div class="message-avatar">
               {{ msg.role === 'user' ? (authStore.user?.username?.charAt(0) || '我') : (chatStore.currentEmployee?.icon || 'AI') }}
             </div>
-            <div class="message-content">
+            <div class="message-content" data-guide="chat-actions">
               <div
                 v-if="msg.role === 'user'"
                 class="message-bubble"
@@ -290,12 +290,13 @@ onBeforeUnmount(() => {
 
         <div class="chat-input-container">
           <div class="input-wrapper">
-            <textarea 
-              v-model="currentInput" 
+            <textarea
+              v-model="currentInput"
               class="chat-input"
               placeholder="选择AI员工后，开始您的专属对话..."
               rows="1"
               :disabled="isGenerating"
+              data-guide="chat-input"
               @keydown.enter.prevent="sendMessage"
             />
             <div class="input-actions">

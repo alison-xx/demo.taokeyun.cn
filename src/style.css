@@ -8,10 +8,41 @@
     Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ── Theme: Dark (default) ── */
+  --bg-primary:    #0f1117;
+  --bg-secondary:  #1a1b26;
+  --bg-tertiary:   #252836;
+  --text-primary:  #e2e8f0;
+  --text-secondary: rgba(255,255,255,0.6);
+  --border-color:  rgba(255,255,255,0.1);
+  --accent:        #3b82f6;
+  --accent-hover:  #2563eb;
+  --danger:        #ef4444;
+  --success:       #22c55e;
+  --warning:       #f59e0b;
+}
+
+[data-theme="light"] {
+  --bg-primary:    #f8fafc;
+  --bg-secondary:  #f1f5f9;
+  --bg-tertiary:   #e2e8f0;
+  --text-primary:  #0f172a;
+  --text-secondary: rgba(15,23,42,0.6);
+  --border-color:  rgba(0,0,0,0.1);
+  --accent:        #2563eb;
+  --accent-hover:  #1d4ed8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
 }
 

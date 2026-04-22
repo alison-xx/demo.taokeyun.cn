@@ -56,6 +56,7 @@ const createNewChat = () => {
       
       <button
         class="ai-employee-btn"
+        data-guide="agent-selector"
         @click="createNewChat"
       >
         <svg
