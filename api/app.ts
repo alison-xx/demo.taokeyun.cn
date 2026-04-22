@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import chatRoutes from './routes/chat.js'
 import paintingRoutes from './routes/painting.js'
+import { globalLimiter, loginLimiter } from './middleware/rateLimit.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -27,11 +28,12 @@ const app: express.Application = express()
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+app.use(globalLimiter)
 
 /**
  * API Routes
  */
-app.use('/api/auth', authRoutes)
+app.use('/api/auth', loginLimiter, authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/painting', paintingRoutes)
 // Compatibility routes for environments where a proxy strips the /api prefix.

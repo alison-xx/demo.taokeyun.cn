@@ -8,8 +8,6 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended'],
-  plugins: ['vue'],
   ignorePatterns: [
     'dist/**',
     'node_modules/**',
@@ -20,10 +18,6 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'vue/multi-word-component-names': 'off',
-    'vue/no-v-html': 'warn',
-    'vue/require-default-prop': 'off',
-    'vue/require-explicit-emits': 'warn',
   },
   overrides: [
     {
@@ -40,6 +34,7 @@ module.exports = {
         'vue/no-v-html': 'warn',
         'vue/require-default-prop': 'off',
         'vue/require-explicit-emits': 'warn',
+        'vue/no-empty': 'off',
         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
         '@typescript-eslint/no-explicit-any': 'warn',
       },
@@ -54,6 +49,19 @@ module.exports = {
       plugins: ['@typescript-eslint'],
       rules: {
         'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/no-explicit-any': 'warn',
+      },
+    },
+    {
+      files: ['*.ts', 'scripts/**/*.ts', 'tasks/**/*.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      plugins: ['@typescript-eslint'],
+      rules: {
         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
         '@typescript-eslint/no-explicit-any': 'warn',
       },

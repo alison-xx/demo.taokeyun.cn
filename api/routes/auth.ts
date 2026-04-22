@@ -115,7 +115,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     const displayName = nickname || email.split('@')[0];
 
     const [result]: any = await pool.query(
@@ -281,7 +281,7 @@ router.post('/password-reset/confirm', async (req: Request, res: Response): Prom
       return;
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     await pool.query('UPDATE users SET password_hash = ? WHERE email = ?', [passwordHash, email]);
     await pool.query('UPDATE verification_codes SET used = 1 WHERE id = ?', [codeRows[0].id]);
 

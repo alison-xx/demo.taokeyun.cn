@@ -6,7 +6,8 @@ import hljs from 'highlight.js';
 import DOMPurify from 'dompurify';
 import 'highlight.js/styles/atom-one-dark.css';
 
-defineProps<{ content: string }>();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps<{ content: string }>();
 
 marked.use(markedHighlight({
   langPrefix: 'hljs language-',
