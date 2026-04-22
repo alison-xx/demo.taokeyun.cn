@@ -113,22 +113,22 @@ const handleSubmit = async () => {
       return;
     }
 
-    const url = isLogin.value ? '/auth/login' : '/auth/register';
+    const url = isLogin.value ? '/api/auth/login/email' : '/api/auth/register/email';
     const payload = isLogin.value
       ? { email: email.value.trim(), password: password.value }
       : { email: email.value.trim(), password: password.value, nickname: nickname.value.trim() };
     const res: any = await request.post(url, payload);
-    
-    if (res.code === 200) {
+
+    if (res.data?.code === 200) {
       if (rememberEmail.value) {
         localStorage.setItem(EMAIL_STORAGE_KEY, email.value.trim());
       } else {
         localStorage.removeItem(EMAIL_STORAGE_KEY);
       }
-      authStore.setAuth(res.data.token, res.data.user);
+      authStore.setAuth(res.data.data);
       emit('close');
     } else {
-      errorMsg.value = res.message;
+      errorMsg.value = res.data?.message || '操作失败';
     }
   } catch (err: any) {
     errorMsg.value = err.message || '操作失败，请稍后重试';

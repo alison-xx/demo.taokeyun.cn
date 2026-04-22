@@ -12,23 +12,22 @@ const toastMsg = ref('');
 
 const saveProfile = async () => {
   try {
-    const res: any = await request.post('/auth/profile', { nickname: nickname.value });
-    if (res.code === 200) {
-      if (authStore.user) {
-        authStore.user.username = nickname.value;
-        authStore.setAuth(authStore.token!, authStore.user);
-      }
+    const res = await authStore.updateProfile({ nickname: nickname.value });
+    if ((res as any).data?.code === 200) {
       toastMsg.value = '保存成功';
-      setTimeout(() => toastMsg.value = '', 2000);
+      setTimeout(() => { toastMsg.value = ''; }, 2000);
+    } else {
+      toastMsg.value = (res as any).data?.message || '保存失败';
+      setTimeout(() => { toastMsg.value = ''; }, 2000);
     }
   } catch (error) {
     toastMsg.value = '保存失败';
-    setTimeout(() => toastMsg.value = '', 2000);
+    setTimeout(() => { toastMsg.value = ''; }, 2000);
   }
 };
 
 onMounted(async () => {
-  if (authStore.token) {
+  if (authStore.accessToken) {
     try {
       const res: any = await request.get('/auth/profile');
       if (res.code === 200) {
